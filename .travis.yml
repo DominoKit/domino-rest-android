@@ -1,5 +1,6 @@
 sudo: false
 language: android
+dist: trusty
 jdk: openjdk8
 branches:
   only:
