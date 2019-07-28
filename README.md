@@ -1,1 +1,1 @@
-# DominoKitAndroid
+# domino-rest-android
