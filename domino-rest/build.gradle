@@ -1,0 +1,101 @@
+apply plugin: 'com.android.library'
+apply plugin: 'digital.wup.android-maven-publish'
+
+group = 'org.dominokit.android'
+version = '1.0-rc.4-SNAPSHOT'
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 14
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath true
+            }
+        }
+        packagingOptions {
+            exclude 'META-INF/gwt/*'
+            exclude '**/*.gwt.xml'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    maven {
+        url "https://repo.vertispan.com/gwt-snapshot"
+    }
+}
+
+dependencies {
+    api 'io.reactivex.rxjava2:rxjava:2.2.10'
+    api 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    api 'cz.msebera.android:httpclient:4.5.8'
+    api "org.dominokit:domino-rest-shared:1.0-rc.4-SNAPSHOT"
+}
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            from components.android
+            pom {
+                name = 'Domino rest android'
+                description = 'domino-rest support for Android'
+                url = 'https://github.com/DominoKit/domino-rest-android'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Ahmad K. Bawaneh'
+                        email = 'akabme@gmail.com'
+                    }
+                    developer {
+                        name = 'Rafat J. Al-Barouki'
+                        email = 'rafat.albarouki@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/DominoKit/domino-rest-android.git'
+                    developerConnection = 'scm:git:git@github.com:DominoKit/domino-rest-android.git'
+                    url = 'https://github.com/DominoKit/domino-rest-android'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots"
+            credentials {
+                username System.getenv("SONATYPE_USERNAME")
+                password System.getenv("SONATYPE_PASSWORD")
+            }
+        }
+    }
+}
