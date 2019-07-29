@@ -57,10 +57,17 @@ dependencies {
     api "org.dominokit:domino-rest-shared:1.0-rc.4-SNAPSHOT"
 }
 
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier = 'sources'
+}
+
 publishing {
     publications {
         mavenAar(MavenPublication) {
             from components.android
+            groupId = 'org.dominokit.android'
+            artifact sourcesJar
             pom {
                 name = 'Domino rest android'
                 description = 'domino-rest support for Android'
