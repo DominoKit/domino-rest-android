@@ -1,0 +1,13 @@
+
+> Task :domino-rest:lint
+Ran lint on variant debug: 27 issues found
+Ran lint on variant release: 27 issues found
+Wrote HTML report to file:///home/rjeeb/Development/git/domino-rest-android/domino-rest/build/reports/lint-results.html
+Wrote XML report to file:///home/rjeeb/Development/git/domino-rest-android/domino-rest/build/reports/lint-results.xml
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 6.0.
+Use '--warning-mode all' to show the individual deprecation warnings.
+See https://docs.gradle.org/5.1.1/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 10s
+52 actionable tasks: 48 executed, 4 up-to-date

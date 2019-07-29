@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'maven'
 
 group = 'org.dominokit.android'
 version = '1.0-rc.4-SNAPSHOT'
@@ -62,46 +63,37 @@ task sourcesJar(type: Jar) {
     archiveClassifier = 'sources'
 }
 
-publishing {
-    publications {
-        mavenAar(MavenPublication) {
-            from components.android
-            groupId = 'org.dominokit.android'
-            artifact sourcesJar
-            pom {
-                name = 'Domino rest android'
-                description = 'domino-rest support for Android'
-                url = 'https://github.com/DominoKit/domino-rest-android'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        name = 'Ahmad K. Bawaneh'
-                        email = 'akabme@gmail.com'
-                    }
-                    developer {
-                        name = 'Rafat J. Al-Barouki'
-                        email = 'rafat.albarouki@gmail.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:https://github.com/DominoKit/domino-rest-android.git'
-                    developerConnection = 'scm:git:git@github.com:DominoKit/domino-rest-android.git'
-                    url = 'https://github.com/DominoKit/domino-rest-android'
-                }
-            }
-        }
-    }
+uploadArchives {
     repositories {
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-            credentials {
-                username System.getenv("SONATYPE_USERNAME")
-                password System.getenv("SONATYPE_PASSWORD")
+        mavenDeployer {
+            repository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                authentication(userName: System.getenv("SONATYPE_USERNAME"), password: System.getenv("SONATYPE_PASSWORD"))
+                pom.groupId = "org.dominokit.android"
+                pom.artifactId = "domino-rest"
+                pom.version = '1.0-rc.4-SNAPSHOT'
+                pom.project {
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            name = 'Ahmad K. Bawaneh'
+                            email = 'akabme@gmail.com'
+                        }
+                        developer {
+                            name = 'Rafat J. Al-Barouki'
+                            email = 'rafat.albarouki@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/DominoKit/domino-rest-android.git'
+                        developerConnection = 'scm:git:git@github.com:DominoKit/domino-rest-android.git'
+                        url = 'https://github.com/DominoKit/domino-rest-android'
+                    }
+                }
             }
         }
     }
