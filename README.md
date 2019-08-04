@@ -9,7 +9,7 @@ Adding support for [domino-rest](https://github.com/DominoKit/domino-rest) in an
 - Adding these two dependencies:
 
 ```
-implementation 'org.dominokit.android:domino-rest:1.0-rc.4-SNAPSHOT'
+implementation 'org.dominokit:domino-rest-android:1.0-rc.4-SNAPSHOT'
 compileOnly 'org.dominokit:domino-rest-apt:1.0-rc.4-SNAPSHOT'
 ```
 
@@ -139,3 +139,4 @@ MoviesServiceFactory.INSTANCE
 
 
 #### for other features, please refer to [the main documentation for domino-rest](https://github.com/DominoKit/domino-rest)
+=======

@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'digital.wup.android-maven-publish'
 apply plugin: 'maven'
 
-group = 'org.dominokit.android'
+group = 'org.dominokit'
 version = '1.0-rc.4-SNAPSHOT'
 
 android {
@@ -68,9 +68,9 @@ uploadArchives {
         mavenDeployer {
             repository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
                 authentication(userName: System.getenv("SONATYPE_USERNAME"), password: System.getenv("SONATYPE_PASSWORD"))
-                pom.groupId = "org.dominokit.android"
-                pom.artifactId = "domino-rest"
-                pom.version = '1.0-rc.4-SNAPSHOT'
+                pom.groupId = group
+                pom.artifactId = "domino-rest-android"
+                pom.version = version
                 pom.project {
                     licenses {
                         license {
@@ -95,6 +95,18 @@ uploadArchives {
                     }
                 }
             }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = 'domino-rest-android'
+            version = version
+
+            from components.android
         }
     }
 }
