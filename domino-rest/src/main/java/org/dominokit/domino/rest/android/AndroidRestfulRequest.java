@@ -1,5 +1,14 @@
 package org.dominokit.domino.rest.android;
 
+import org.dominokit.domino.rest.shared.BaseRestfulRequest;
+import org.dominokit.domino.rest.shared.RestfulRequest;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import cz.msebera.android.httpclient.Consts;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.NameValuePair;
@@ -11,14 +20,6 @@ import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
 import cz.msebera.android.httpclient.message.BasicNameValuePair;
-import org.dominokit.domino.rest.shared.BaseRestfulRequest;
-import org.dominokit.domino.rest.shared.RestfulRequest;
-
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.joining;
@@ -113,5 +114,15 @@ public class AndroidRestfulRequest extends BaseRestfulRequest {
         } catch (IOException e) {
             errorHandler.onError(e);
         }
+    }
+
+    @Override
+    public void abort() {
+        //TODO not implemented yet
+    }
+
+    @Override
+    public RestfulRequest setResponseType(String responseType) {
+        return this;
     }
 }

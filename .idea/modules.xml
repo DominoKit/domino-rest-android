@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/domino-rest/domino-rest.iml" filepath="$PROJECT_DIR$/domino-rest/domino-rest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/domino-rest-android.iml" filepath="$PROJECT_DIR$/domino-rest-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domino-rest/domino-rest.iml" filepath="$PROJECT_DIR$/.idea/modules/domino-rest/domino-rest.iml" group="domino-rest-android/domino-rest" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domino-rest-android.iml" filepath="$PROJECT_DIR$/.idea/modules/domino-rest-android.iml" group="domino-rest-android" />
     </modules>
   </component>
 </project>

@@ -8,24 +8,24 @@ import org.dominokit.domino.rest.shared.request.DefaultRequestAsyncSender;
 import org.dominokit.domino.rest.shared.request.DominoRestContext;
 import org.dominokit.domino.rest.shared.request.DynamicServiceRoot;
 import org.dominokit.domino.rest.shared.request.Fail;
-import org.dominokit.domino.rest.shared.request.ResponseInterceptor;
 import org.dominokit.domino.rest.shared.request.RequestInterceptor;
 import org.dominokit.domino.rest.shared.request.RequestRouter;
+import org.dominokit.domino.rest.shared.request.ResponseInterceptor;
 import org.dominokit.domino.rest.shared.request.RestConfig;
 import org.dominokit.domino.rest.shared.request.ServerRequest;
 import org.dominokit.domino.rest.shared.request.ServerRouter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public class DominoRestConfig implements RestConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DominoRestConfig.class);
+    private static final Logger LOGGER = Logger.getLogger(DominoRestConfig.class.getCanonicalName());
     private static String defaultServiceRoot;
     private static String defaultResourceRootPath = "service";
     private static String defaultJsonDateFormat = null;
@@ -35,11 +35,12 @@ public class DominoRestConfig implements RestConfig {
     private static List<DynamicServiceRoot> dynamicServiceRoots = new ArrayList<>();
     private static List<RequestInterceptor> requestInterceptors = new ArrayList<>();
     private static final List<ResponseInterceptor> responseInterceptors = new ArrayList<>();
+    private static DateParamFormatter dateParamFormatter = (date, pattern) -> new SimpleDateFormat(pattern).format(date);
     private static Fail defaultFailHandler = failedResponse -> {
         if (nonNull(failedResponse.getThrowable())) {
-            LOGGER.debug("could not execute request on server: ", failedResponse.getThrowable());
+            LOGGER.severe("could not execute request on server: " + failedResponse.getThrowable());
         } else {
-            LOGGER.debug("could not execute request on server: status [" + failedResponse.getStatusCode() + "], body [" + failedResponse.getBody() + "]");
+            LOGGER.severe("could not execute request on server: status [" + failedResponse.getStatusCode() + "], body [" + failedResponse.getBody() + "]");
         }
     };
 
@@ -152,6 +153,17 @@ public class DominoRestConfig implements RestConfig {
                 asyncTask.onFailed(error);
             }
         };
+    }
+
+    @Override
+    public RestConfig setDateParamFormatter(DateParamFormatter formatter) {
+        DominoRestConfig.dateParamFormatter = formatter;
+        return this;
+    }
+
+    @Override
+    public DateParamFormatter getDateParamFormatter() {
+        return DominoRestConfig.dateParamFormatter;
     }
 
     public void setServerRouter(RequestRouter<ServerRequest> serverRouter) {

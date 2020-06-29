@@ -1,25 +1,34 @@
 package org.dominokit.domino.rest.android;
 
+import org.dominokit.domino.api.shared.extension.ContextAggregator;
+import org.dominokit.domino.rest.shared.Response;
+import org.dominokit.domino.rest.shared.RestfulRequest;
+import org.dominokit.domino.rest.shared.request.DominoRestContext;
+import org.dominokit.domino.rest.shared.request.FailedResponseBean;
+import org.dominokit.domino.rest.shared.request.InterceptorRequestWait;
+import org.dominokit.domino.rest.shared.request.RequestInterceptor;
+import org.dominokit.domino.rest.shared.request.RequestRestSender;
+import org.dominokit.domino.rest.shared.request.RequestTimeoutException;
+import org.dominokit.domino.rest.shared.request.ServerRequest;
+import org.dominokit.domino.rest.shared.request.ServerRequestCallBack;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import org.dominokit.domino.api.shared.extension.ContextAggregator;
-import org.dominokit.domino.rest.shared.RestfulRequest;
-import org.dominokit.domino.rest.shared.request.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
 public class AndroidRequestSender<R, S> implements RequestRestSender<R, S> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AndroidRequestSender.class);
+    private static final Logger LOGGER = Logger.getLogger(AndroidRequestSender.class.getCanonicalName());
 
     private final List<String> SEND_BODY_METHODS = Arrays.asList("POST", "PUT", "PATCH");
 
@@ -46,12 +55,15 @@ public class AndroidRequestSender<R, S> implements RequestRestSender<R, S> {
                     RestfulRequest restfulRequest = RestfulRequest.request(request.getUrl(), request.getHttpMethod().toUpperCase());
                     restfulRequest
                             .putHeaders(request.headers())
-                            .putParameters(request.parameters())
+                            .putParameters(request.queryParameters())
                             .onSuccess(response -> {
                                 if (Arrays.stream(request.getSuccessCodes()).anyMatch(code -> code.equals(response.getStatusCode()))) {
-                                    emitter.onNext(request.getResponseReader().read(response.getBodyAsString()));
+                                    callSuccessGlobalHandlers(request, response);
+                                    emitter.onNext(request.getResponseReader().read(response));
                                 } else {
-                                    emitter.onError(new FailedResponse(response.getStatusCode(), response.getStatusText(), response.getBodyAsString(), response.getHeaders()));
+                                    FailedResponseBean failedResponse = new FailedResponseBean(request, response);
+                                    callFailedResponseHandlers(request, failedResponse);
+                                    emitter.onError(new FailedResponseException(request, response));
                                 }
                             })
                             .onError(throwable -> {
@@ -60,6 +72,9 @@ public class AndroidRequestSender<R, S> implements RequestRestSender<R, S> {
                                     LOGGER.info("Retrying request : " + retriesCounter[0]);
                                     doSendRequest(request, restfulRequest);
                                 } else {
+                                    FailedResponseBean failedResponse = new FailedResponseBean(throwable);
+                                    LOGGER.log(Level.SEVERE, "Failed to execute request : ", failedResponse.getThrowable());
+                                    callFailedResponseHandlers(request, failedResponse);
                                     emitter.onError(throwable);
                                 }
                             });
@@ -71,14 +86,23 @@ public class AndroidRequestSender<R, S> implements RequestRestSender<R, S> {
                 .subscribe(new RequestObserver<>(callBack));
     }
 
+    private void callSuccessGlobalHandlers(ServerRequest<R, S> request, Response response) {
+        DominoRestContext.make().getConfig()
+                .getResponseInterceptors()
+                .forEach(responseInterceptor -> responseInterceptor.interceptOnSuccess(request, response));
+    }
+
+    private void callFailedResponseHandlers(ServerRequest request, FailedResponseBean failedResponse) {
+        DominoRestContext.make().getConfig()
+                .getResponseInterceptors()
+                .forEach(responseInterceptor -> responseInterceptor.interceptOnFailed(request, failedResponse));
+    }
+
     private void handleError(ServerRequestCallBack callBack, Throwable throwable) {
         FailedResponseBean failedResponseBean;
-        if (throwable instanceof FailedResponse) {
-            FailedResponse failedResponse = (FailedResponse) throwable;
-            failedResponseBean = new FailedResponseBean(failedResponse.getStatusCode(),
-                    failedResponse.getResponseText(),
-                    failedResponse.getBodyAsString(),
-                    failedResponse.getHeaders());
+        if (throwable instanceof FailedResponseException) {
+            FailedResponseException failedResponseException = (FailedResponseException) throwable;
+            failedResponseBean = new FailedResponseBean(failedResponseException.getRequest(), failedResponseException.getResponse());
         } else {
             failedResponseBean = new FailedResponseBean(throwable);
         }
@@ -128,6 +152,24 @@ public class AndroidRequestSender<R, S> implements RequestRestSender<R, S> {
         @Override
         public void onComplete() {
             disposable.dispose();
+        }
+    }
+
+    private static class FailedResponseException extends Throwable {
+        private final ServerRequest request;
+        private final Response response;
+
+        public FailedResponseException(ServerRequest request, Response response) {
+            this.request = request;
+            this.response = response;
+        }
+
+        public ServerRequest getRequest() {
+            return request;
+        }
+
+        public Response getResponse() {
+            return response;
         }
     }
 }
